@@ -1,0 +1,35 @@
+# .github/workflows/lint.yml — ruff lint + type-check CI
+#
+# 目标：在 push/PR 时静态检查代码质量。
+# 不跑测试（由 smoke.yml 负责），只做 lint 和 type 检查。
+
+name: lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install lint tools
+        run: pip install ruff pyright
+
+      - name: ruff check
+        run: ruff check mini_infer/ --select E,F,W,I --ignore E501
+
+      - name: pyright type check
+        run: pyright mini_infer/ --pythonversion 3.10
+        continue-on-error: true  # 渐进式引入，当前不阻断 merge

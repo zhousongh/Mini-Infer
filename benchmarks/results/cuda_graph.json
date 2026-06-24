@@ -1,0 +1,20 @@
+{
+  "$comment": "CUDA Graph decode 延迟 benchmark 数据。来源：benchmarks/benchmark_cuda_graph.py。环境：CUDA 12.1，RTX 4090，torch 2.1.2+cu121。详细复现命令见 docs/benchmarks.md。",
+  "meta": {
+    "model": "Qwen2.5-1.5B-Instruct",
+    "metric": "decode_step_latency_ms",
+    "hardware": "RTX 4090",
+    "cuda_version": "12.1",
+    "torch_version": "2.1.2+cu121"
+  },
+  "data": [
+    {"batch_size": 1, "eager_ms": 7.33, "graph_ms": 5.21, "speedup": 1.41},
+    {"batch_size": 2, "eager_ms": 7.44, "graph_ms": 5.88, "speedup": 1.27},
+    {"batch_size": 4, "eager_ms": 7.73, "graph_ms": 6.43, "speedup": 1.20},
+    {"batch_size": 8, "eager_ms": 8.31, "graph_ms": 6.79, "speedup": 1.22}
+  ],
+  "summary": {
+    "bs1_latency_reduction_pct": 28.9,
+    "note": "bs=1 decode step latency -28.9%（7.33ms → 5.21ms）"
+  }
+}

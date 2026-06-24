@@ -1,0 +1,31 @@
+{
+  "$comment": "主线吞吐演进 benchmark 数据。来源：benchmarks/benchmark_flash.py --compare。环境：CUDA 12.1，RTX 4090，torch 2.1.2+cu121。详细复现命令见 docs/benchmarks.md。",
+  "meta": {
+    "model": "Qwen2.5-7B-Instruct",
+    "batch_size": 8,
+    "max_new_tokens": 128,
+    "hardware": "RTX 4090",
+    "cuda_version": "12.1",
+    "torch_version": "2.1.2+cu121"
+  },
+  "data": [
+    {
+      "label": "Phase 3 (DynamicCache)",
+      "description": "向量化 KV gather + DynamicCache，continuous batching",
+      "throughput_tok_s": 361.3,
+      "vs_hf_pct": 88.4
+    },
+    {
+      "label": "Phase 6 (True PagedAttention)",
+      "description": "flash_attn_with_kvcache + block_table，decode attention 直接从 block tensor 寻址",
+      "throughput_tok_s": 406.3,
+      "vs_hf_pct": 100.0
+    },
+    {
+      "label": "HF Transformers baseline",
+      "description": "HuggingFace Transformers，SDPA FlashAttention kernel，无 PagedAttention",
+      "throughput_tok_s": 406.4,
+      "vs_hf_pct": 100.0
+    }
+  ]
+}

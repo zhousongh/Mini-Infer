@@ -1,0 +1,34 @@
+{
+  "$comment": "Chunked Prefill benchmark 数据。来源：benchmarks/benchmark_chunked_prefill.py。环境：CUDA 12.1，RTX 4090，torch 2.1.2+cu121。详细复现命令见 docs/benchmarks.md。",
+  "meta": {
+    "model": "Qwen2.5-7B-Instruct",
+    "hardware": "RTX 4090",
+    "cuda_version": "12.1",
+    "workload": "mixed long-prefill + short-decode requests"
+  },
+  "data": [
+    {
+      "chunk_size": 0,
+      "label": "无 Chunked Prefill",
+      "max_itl_spike_ms": 138.4,
+      "throughput_tok_s": 290.0
+    },
+    {
+      "chunk_size": 128,
+      "label": "chunk=128",
+      "max_itl_spike_ms": 45.9,
+      "throughput_tok_s": 296.8
+    },
+    {
+      "chunk_size": 256,
+      "label": "chunk=256",
+      "max_itl_spike_ms": 58.6,
+      "throughput_tok_s": 301.3
+    }
+  ],
+  "summary": {
+    "itl_spike_reduction_chunk128_pct": 66.8,
+    "itl_spike_reduction_chunk256_pct": 57.7,
+    "note": "chunk=128 ITL spike −66.8%（138ms → 46ms）；chunk=256 ITL spike −57.7%（138ms → 59ms）"
+  }
+}

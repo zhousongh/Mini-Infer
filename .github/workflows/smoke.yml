@@ -1,0 +1,70 @@
+# .github/workflows/smoke.yml — CPU smoke CI
+#
+# 目标：防止重构后 packaging / import / CLI / dry-run 路径悄悄坏掉。
+# 不跑 GPU benchmark，不跑需要真实模型权重的测试。
+# GPU 专项测试（test_paged_attention / triton / flash_decode 等）在本地执行。
+
+name: smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install package + dev dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Import smoke
+        run: |
+          python -c "
+          import mini_infer
+          print('version:', mini_infer.__version__)
+          from mini_infer.core.config import EngineConfig
+          from mini_infer.runtime.engine import LLMEngine
+          from mini_infer.cache.kv_cache import KVCacheManager
+          from mini_infer.kernels.attention import patch_model_for_paged_decode
+          from mini_infer.modeling.model_runner import ModelRunner
+          print('all canonical imports OK')
+          "
+
+      - name: CLI help smoke
+        run: |
+          pip install -e ".[serve]"
+          mini-infer-serve --help
+          mini-infer-chat  --help
+          mini-infer-demo  --help
+
+      - name: examples import smoke
+        run: |
+          python -c "import ast, pathlib
+          for f in pathlib.Path('examples').glob('*.py'):
+              ast.parse(f.read_text())
+              print('syntax OK:', f)
+          "
+
+      - name: dry-run test suite (CPU, no GPU)
+        run: |
+          python -m pytest tests/ -q \
+            --ignore=tests/test_paged_attention.py \
+            --ignore=tests/test_triton_attn.py \
+            --ignore=tests/test_flash_decode.py \
+            --ignore=tests/test_mla_attention.py \
+            --ignore=tests/test_moe.py \
+            --ignore=tests/test_pd_disagg.py

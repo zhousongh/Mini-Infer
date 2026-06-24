@@ -1,0 +1,29 @@
+# 这个文件定义仓库忽略规则，避免缓存、本地设置和个人资料进入 Git。
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+.idea/
+.vscode/
+htmlcov/
+.coverage
+*.jsonl
+.claude/settings.local.json
+
+# 个人本地资料（实验记录、博客草稿、知识笔记等）
+本地资料/
+
+# AI 协作配置（Claude Code、Codex 规则和 skill）
+.claude/
+.codex/
+CLAUDE.md
+CODEX.md
+
+# MoE / EP GitHub 不再跟踪
+mini_infer/modeling/moe_layer.py
+mini_infer/modeling/moe_model.py
+mini_infer/parallel/ep_engine.py

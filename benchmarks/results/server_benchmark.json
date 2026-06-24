@@ -1,0 +1,31 @@
+{
+  "$comment": "HTTP serving benchmark (Phase 8). Script: benchmarks/benchmark_server.py. Docs: docs/benchmarks.md. Note: TTFT is approximate (httpx.ASGITransport buffers full response, not true first-token). True TTFT requires uvicorn + real streaming client.",
+  "meta": {
+    "date": "2026-03-28",
+    "model": "Qwen2.5-7B-Instruct",
+    "hardware": "RTX 4090",
+    "cuda": "12.1",
+    "max_tokens": 64,
+    "trials_single": 5,
+    "concurrency_levels": [1, 2, 4, 8],
+    "note": "ASGITransport buffers full response — TTFT = whole response latency (not true streaming first-token time)"
+  },
+  "data": {
+    "single_request": {
+      "ttft_approx_ms": {"mean": 1154.1, "min": 1150.8, "max": 1158.4},
+      "tpot_approx_ms_per_tok": 18.15,
+      "output_tokens_mean": 63.6
+    },
+    "concurrent_throughput": [
+      {"concurrency": 1, "total_tokens": 64,  "time_s": 1.15, "throughput_tok_s": 55.7},
+      {"concurrency": 2, "total_tokens": 128, "time_s": 1.37, "throughput_tok_s": 93.1},
+      {"concurrency": 4, "total_tokens": 254, "time_s": 1.46, "throughput_tok_s": 174.0},
+      {"concurrency": 8, "total_tokens": 510, "time_s": 2.33, "throughput_tok_s": 219.1}
+    ],
+    "peak_vram_gb": 18.76
+  },
+  "summary": {
+    "continuous_batching_effect": "concurrency 1→8: 55.7 → 219.1 tok/s (3.9×)",
+    "vram_note": "HTTP serving layer adds no GPU memory vs Phase 6/7 inference engine"
+  }
+}

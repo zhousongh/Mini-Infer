@@ -1,0 +1,49 @@
+{
+  "$comment": "MoE Expert Parallelism 吞吐演进 benchmark 数据。来源：benchmarks/benchmark_moe.py --compare。环境：2 × RTX 4090，CUDA 12.1，torch 2.1.2+cu121，NCCL。详细复现命令见 docs/benchmarks.md。",
+  "meta": {
+    "workload": "Synthetic MoE layer (single forward pass)",
+    "hardware": "2 × RTX 4090",
+    "config": {
+      "batch_size": 4,
+      "seq_len": 16,
+      "hidden_size": 512,
+      "intermediate_size": 1024,
+      "num_experts": 8,
+      "top_k": 2
+    },
+    "note": "Synthetic workload，非完整 LLM serving 链路，用于隔离通信 vs 计算 overhead"
+  },
+  "data": [
+    {
+      "label": "Dense (1 GPU)",
+      "throughput_tok_s": 21878.76,
+      "vs_dense": 1.0,
+      "gpus": 1,
+      "communication": "none"
+    },
+    {
+      "label": "EP padded (2 GPU)",
+      "throughput_tok_s": 42765.91,
+      "vs_dense": 1.954,
+      "gpus": 2,
+      "communication": "all-to-all with padding"
+    },
+    {
+      "label": "EP packed (2 GPU)",
+      "throughput_tok_s": 51121.99,
+      "vs_dense": 2.337,
+      "vs_ep_padded": 1.217,
+      "gpus": 2,
+      "communication": "all-to-all packed (no padding)"
+    },
+    {
+      "label": "EP grouped (2 GPU)",
+      "throughput_tok_s": 54696.73,
+      "vs_dense": 2.500,
+      "vs_ep_packed": 1.070,
+      "gpus": 2,
+      "communication": "grouped local execution",
+      "runtime_resident_ratio": 0.8334
+    }
+  ]
+}

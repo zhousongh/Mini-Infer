@@ -1,0 +1,25 @@
+{
+  "$comment": "Flash Decoding (Split-K) attention latency benchmark 数据。来源：benchmarks/benchmark_flash_decode.py。环境：CUDA 12.1，RTX 4090，torch 2.1.2+cu121。详细复现命令见 docs/benchmarks.md。",
+  "meta": {
+    "model": "Qwen2.5-1.5B-Instruct",
+    "hardware": "RTX 4090",
+    "cuda_version": "12.1",
+    "batch_size": 1,
+    "metric": "attention_latency_ms",
+    "note": "独立实验性 kernel，未接入主 serving 链路"
+  },
+  "data": [
+    {"seq_len": 128,  "flash_attn_ms": 0.015, "triton_65_ms": 0.020, "flash_decode_ms": 0.062},
+    {"seq_len": 256,  "flash_attn_ms": 0.014, "triton_65_ms": 0.023, "flash_decode_ms": 0.063},
+    {"seq_len": 512,  "flash_attn_ms": 0.012, "triton_65_ms": 0.044, "flash_decode_ms": 0.063},
+    {"seq_len": 1024, "flash_attn_ms": 0.010, "triton_65_ms": 0.074, "flash_decode_ms": 0.063},
+    {"seq_len": 2048, "flash_attn_ms": 0.016, "triton_65_ms": 0.129, "flash_decode_ms": 0.068},
+    {"seq_len": 4096, "flash_attn_ms": 0.013, "triton_65_ms": 0.256, "flash_decode_ms": 0.100}
+  ],
+  "summary": {
+    "speedup_vs_triton_at_4096": 3.31,
+    "sm_utilization_triton_65_pct": 9,
+    "sm_utilization_flash_decode_pct": 103,
+    "crossover_seq_len": 2048
+  }
+}

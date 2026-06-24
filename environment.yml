@@ -1,0 +1,55 @@
+# environment.yml — mini-infer 推理引擎开发环境
+#
+# 快速创建：conda env create -f environment.yml
+# 激活：    conda activate mini-infer
+#
+# GPU 要求：CUDA 12.1，RTX 4090 或同等 Ampere+ 架构
+# flash-attn 需单独编译（见下方注释）
+
+name: mini-infer
+channels:
+  - pytorch
+  - nvidia
+  - defaults
+
+dependencies:
+  - python=3.10
+  - pip
+
+  - pip:
+    # ── 核心推理框架 ───────────────────────────────────────────────────────
+    - torch==2.1.2+cu121
+    - torchvision==0.16.2+cu121
+    - --extra-index-url https://download.pytorch.org/whl/cu121
+
+    # ── 模型 / tokenizer ──────────────────────────────────────────────────
+    - transformers==4.43.4
+    - tokenizers>=0.19.0
+
+    # ── HTTP serving ──────────────────────────────────────────────────────
+    # fastapi<0.115 配合 pydantic v1；>=0.115 需要 pydantic v2
+    - fastapi>=0.100.0,<0.115.0
+    - uvicorn>=0.23.0
+    - pydantic==1.10.13
+
+    # ── 测试 / 开发 ───────────────────────────────────────────────────────
+    - pytest>=8.0.0
+    - pytest-asyncio>=0.23.0
+    - httpx>=0.24.0
+    - asgi-lifespan>=2.0
+
+    # ── 科学计算 / 可视化 ─────────────────────────────────────────────────
+    - numpy>=1.24.0,<2.0
+    - matplotlib>=3.7.0
+    - scipy>=1.11.0
+
+    # ── 本包（可编辑模式）────────────────────────────────────────────────
+    - -e .
+
+# ── 可选（需手动安装）────────────────────────────────────────────────────────
+#
+# flash-attn 2.5.9.post1（需要 CUDA + PyTorch 编译，约 10-20 分钟）：
+#   pip install "flash-attn==2.5.9.post1" --no-build-isolation
+#
+# triton（GPU 环境，2.1.0）：
+#   pip install triton==2.1.0

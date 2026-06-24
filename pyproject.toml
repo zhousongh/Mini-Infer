@@ -1,0 +1,95 @@
+# 这个文件定义 mini-infer 的打包和测试基础配置。
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mini-infer"
+version = "0.22.0"
+description = "面向 decoder-only 模型的推理引擎，实现并基准验证 Paged KV Cache、Continuous Batching、True PagedAttention、Chunked Prefill、Prefix Caching、Speculative Decoding、CUDA Graph、Flash Decoding、Tensor Parallelism、MLA、W8A8 量化与 MoE Expert Parallelism"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Smarter" }
+]
+keywords = [
+    "llm", "inference", "pytorch", "cuda", "transformer",
+    "paged-attention", "continuous-batching", "speculative-decoding",
+    "tensor-parallelism", "moe", "expert-parallelism", "flash-attention",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: System :: Distributed Computing",
+]
+dependencies = [
+    "torch>=2.1.2",
+    "transformers>=4.40.0,<5.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/psmarter/mini-infer"
+Repository = "https://github.com/psmarter/mini-infer"
+Issues = "https://github.com/psmarter/mini-infer/issues"
+Documentation = "https://github.com/psmarter/mini-infer/blob/main/docs/architecture.md"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",  # Phase 8 async server tests
+    "httpx>=0.24.0",            # Phase 8 ASGI test client
+    "asgi-lifespan>=2.0",       # Phase 8 lifespan event triggering in tests
+]
+# Phase 6+：True PagedAttention（需先单独安装：pip install "flash-attn>=2.5.0" --no-build-isolation）
+flash = [
+    "flash-attn>=2.5.0",
+]
+# Phase 8+：HTTP 服务化（fastapi<0.115 兼容 pydantic v1；>=0.115 需 pydantic v2）
+serve = [
+    "fastapi>=0.100.0,<0.115.0",
+    "uvicorn>=0.23.0",
+    "asgi-lifespan>=2.0",  # 测试用，触发 ASGI lifespan 事件
+]
+# Phase 6.5 / 12.5：Triton kernel（需 GPU 环境手动安装）
+triton = [
+    "triton>=2.1.0",
+]
+# Phase 13/17+ 分布式（NCCL 随 PyTorch 一起安装，此处列出额外依赖）
+dist = [
+    "torch>=2.1.2",  # NCCL backend included
+]
+# 一键安装全部可选依赖（flash-attn 需单独编译，不计入）
+all = [
+    "fastapi>=0.100.0,<0.115.0",
+    "uvicorn>=0.23.0",
+    "asgi-lifespan>=2.0",
+    "triton>=2.1.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "httpx>=0.24.0",
+]
+
+[project.scripts]
+mini-infer-serve = "mini_infer.cli.serve:main"
+mini-infer-chat  = "mini_infer.cli.chat:main"
+mini-infer-demo  = "mini_infer.cli.demo:main"
+
+[tool.setuptools.packages.find]
+include = ["mini_infer*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+asyncio_mode = "strict"
+filterwarnings = [
+    "ignore:builtin type swigvarlink has no __module__ attribute:DeprecationWarning",
+    "ignore:builtin type SwigPyPacked has no __module__ attribute:DeprecationWarning",
+    "ignore:builtin type SwigPyObject has no __module__ attribute:DeprecationWarning",
+]

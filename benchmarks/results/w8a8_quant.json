@@ -1,0 +1,23 @@
+{
+  "$comment": "W8A8 量化 benchmark 数据。来源：benchmarks/benchmark_quant.py --compare。环境：CUDA 12.1，RTX 4090，torch 2.1.2+cu121。详细复现命令见 docs/benchmarks.md。",
+  "meta": {
+    "model": "Qwen2.5-1.5B-Instruct",
+    "hardware": "RTX 4090",
+    "cuda_version": "12.1",
+    "quantization": "W8A8 per-channel int8, attention layers skipped (mixed fallback)"
+  },
+  "memory": {
+    "fp16_weight_mb": 3392.4,
+    "w8a8_weight_mb": 2292.0,
+    "reduction_pct": 32.4
+  },
+  "throughput": {
+    "fp16_decode_tok_s": 534.8,
+    "w8a8_decode_tok_s": 190.6,
+    "note": "decode 路径退回 FP16 mixed fallback（torch._int_mm 小 M 瓶颈），显存节省有效但 decode 速度无明显提升"
+  },
+  "accuracy": {
+    "greedy_token_match_pct": 71.8,
+    "note": "与 FP16 基线逐 token 比较，correctness-first 实现，未做 PTQ/AWQ 校准"
+  }
+}
